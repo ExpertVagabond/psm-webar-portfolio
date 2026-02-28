@@ -5,5 +5,8 @@
   "private": true,
   "scripts": { "dev": "vite", "build": "vite build" },
   "devDependencies": { "vite": "^5.0.0" },
-  "dependencies": { "three": "^0.162.0" }
+  "dependencies": {
+    "three": "^0.162.0",
+    "@mediapipe/tasks-vision": "^0.10.0"
+  }
 }

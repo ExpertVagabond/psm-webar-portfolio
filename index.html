@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>PSM WebAR Portfolio — Purple Squirrel Media</title>
+  <meta name="description" content="Interactive 3D portfolio showcasing Purple Squirrel Media projects. Explore WebAR, Solana, AI/ML, and more in an immersive experience with face filter mode.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root{--bg:#08080f;--surface:#111119;--purple:#7611b7;--cyan:#00b5ad;--green:#00edaf;--text:#eae6f2;--text-dim:#7b7390}
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%;overflow:hidden}
-    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text)}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);touch-action:manipulation}
     #viewer{position:fixed;inset:0}
 
     .hud{position:fixed;top:0;left:0;right:0;z-index:10;padding:0.75rem 1rem;background:linear-gradient(180deg,rgba(8,8,15,0.9),transparent);display:flex;justify-content:space-between;align-items:center}
@@ -49,6 +51,28 @@
     .info-link:hover{background:rgba(0,237,175,0.1)}
     .info-close{position:absolute;top:0.5rem;right:0.75rem;font-size:1.2rem;color:var(--text-dim);cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all 0.2s}
     .info-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+
+    /* ── Face Filter Mode ── */
+    #face-webcam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);z-index:20;display:none}
+    #face-overlay{position:fixed;inset:0;z-index:21;pointer-events:none;display:none}
+    #face-status{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:25;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--cyan);transition:opacity 1s;background:rgba(8,8,15,0.7);padding:0.5rem 1rem;border-radius:10px;border:1px solid rgba(0,181,173,0.2)}
+    .face-emotion{position:fixed;top:60px;left:0.75rem;z-index:25;display:none;align-items:center;gap:0.4rem;background:rgba(17,17,25,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:0.5rem 0.75rem;backdrop-filter:blur(10px)}
+    .emotion-emoji{font-size:1.3rem}
+    .emotion-name{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600}
+
+    .face-filter-bar{
+      position:fixed;bottom:0;left:0;right:0;z-index:25;
+      padding:0.75rem;background:linear-gradient(0deg,rgba(8,8,15,0.95),transparent);
+      display:none;gap:0.4rem;justify-content:center;align-items:center;
+    }
+    .face-filter-btn{
+      width:48px;height:48px;border-radius:50%;background:var(--surface);
+      border:2px solid rgba(255,255,255,0.08);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+      transition:all 0.2s;flex-shrink:0;
+    }
+    .face-filter-btn:active{transform:scale(0.9)}
+    .face-filter-btn.active{border-color:var(--green);background:rgba(0,237,175,0.1);box-shadow:0 0 12px rgba(0,237,175,0.2)}
   </style>
 </head>
 <body>
@@ -57,6 +81,7 @@
   <div class="hud">
     <h1>Purple Squirrel Media</h1>
     <div class="hud-links">
+      <button class="hud-link" id="face-mode-btn" style="cursor:pointer;background:none">📸 Face Filter</button>
       <a href="https://purplesquirrelmedia.io" class="hud-link" target="_blank">Web</a>
       <a href="https://github.com/ExpertVagabond" class="hud-link" target="_blank">GitHub</a>
     </div>
@@ -68,6 +93,23 @@
 
   <div class="footer">
     <p>Built with Three.js + webar-core &bull; <a href="https://8thwall-archive.pages.dev">8th Wall Archive</a></p>
+  </div>
+
+  <!-- Face Filter Mode -->
+  <video id="face-webcam" autoplay playsinline muted></video>
+  <div id="face-overlay"></div>
+  <span id="face-status"></span>
+  <div class="face-emotion" id="face-emotion">
+    <span class="emotion-emoji">👤</span>
+    <span class="emotion-name" style="color:#7b7390">Neutral</span>
+  </div>
+  <div class="face-filter-bar" id="face-ui">
+    <button class="face-filter-btn active" data-filter="mesh" title="Mesh">&#9674;</button>
+    <button class="face-filter-btn" data-filter="glasses" title="Shades">&#128526;</button>
+    <button class="face-filter-btn" data-filter="crown" title="Crown">&#128081;</button>
+    <button class="face-filter-btn" data-filter="mustache" title="Stache">&#129424;</button>
+    <button class="face-filter-btn" data-filter="hearts" title="Hearts">&#128150;</button>
+    <button class="face-filter-btn" data-filter="none" title="None">&#10060;</button>
   </div>
 
   <script type="module" src="/src/app.js"></script>

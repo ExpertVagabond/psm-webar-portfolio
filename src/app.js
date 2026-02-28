@@ -6,6 +6,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
+import { startFaceMode, stopFaceMode, isFaceModeActive } from './face-mode.js'
 
 let renderer, scene, camera, controls, labelRenderer, clock, raycaster, mouse
 let hoveredMesh = null
@@ -247,6 +248,36 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight)
     labelRenderer.setSize(window.innerWidth, window.innerHeight)
   })
+
+  // Face filter mode toggle
+  const faceModeBtn = document.getElementById('face-mode-btn')
+  if (faceModeBtn) {
+    faceModeBtn.addEventListener('click', async () => {
+      if (isFaceModeActive()) {
+        stopFaceMode()
+        faceModeBtn.textContent = '📸 Face Filter'
+        faceModeBtn.classList.remove('active')
+        document.getElementById('viewer').style.display = 'block'
+        controls.enabled = true
+      } else {
+        document.getElementById('viewer').style.display = 'none'
+        controls.enabled = false
+        faceModeBtn.textContent = '← Portfolio'
+        faceModeBtn.classList.add('active')
+        if (activeInfoPanel) { activeInfoPanel.remove(); activeInfoPanel = null }
+        try {
+          await startFaceMode()
+        } catch (err) {
+          console.error('Face mode failed:', err)
+          stopFaceMode()
+          document.getElementById('viewer').style.display = 'block'
+          controls.enabled = true
+          faceModeBtn.textContent = '📸 Face Filter'
+          faceModeBtn.classList.remove('active')
+        }
+      }
+    })
+  }
 
   animate()
 }
