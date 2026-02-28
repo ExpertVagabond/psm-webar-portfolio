@@ -111,7 +111,7 @@ export async function startFaceMode() {
   // Face mesh wireframe lines
   const lineGeo = new THREE.BufferGeometry()
   lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FACE_MESH_EDGES.length * 2 * 3), 3))
-  faceMeshLines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: 0x7611b7, transparent: true, opacity: 0.4 }))
+  faceMeshLines = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.4 }))
   scene.add(faceMeshLines)
 
   createFilters()
@@ -237,7 +237,7 @@ function createFilters() {
     peakGeo.setIndex([0, 1, 2])
     crownGroup.add(new THREE.Mesh(peakGeo, crownMat))
   }
-  const jewelMat = new THREE.MeshBasicMaterial({ color: 0x7611b7 })
+  const jewelMat = new THREE.MeshBasicMaterial({ color: 0x8b5cf6 })
   for (let i = 0; i < 3; i++) {
     const jewel = new THREE.Mesh(new THREE.CircleGeometry(0.004, 8), jewelMat)
     jewel.position.set(-0.024 + i * 0.024, -0.008, 0.001)

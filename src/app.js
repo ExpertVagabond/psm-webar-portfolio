@@ -16,7 +16,7 @@ const portfolioItems = [
   {
     name: 'WebAR Archive', description: '17 8th Wall XR projects',
     aiDetail: 'A curated archive of 17 WebAR experiences built with 8th Wall. Includes face tracking, image targets, portals, GPS scavenger hunts, and more. Extracted portable code now powers 6 standalone products.',
-    color: 0x7611b7, url: 'https://8thwall-archive.pages.dev', pos: [-2.5, 0.8, 0],
+    color: 0x8b5cf6, url: 'https://8thwall-archive.pages.dev', pos: [-2.5, 0.8, 0],
     tech: ['A-Frame', 'Three.js', 'MediaPipe', 'WebXR'],
   },
   {
@@ -119,7 +119,7 @@ function init() {
   sun.position.set(5, 8, 3)
   scene.add(sun)
 
-  const purpleLight = new THREE.PointLight(0x7611b7, 3, 12)
+  const purpleLight = new THREE.PointLight(0x8b5cf6, 3, 12)
   purpleLight.position.set(0, 4, 0)
   scene.add(purpleLight)
 
@@ -153,7 +153,7 @@ function init() {
   // Glow ring
   const ring = new THREE.Mesh(
     new THREE.TorusGeometry(0.55, 0.015, 16, 64),
-    new THREE.MeshBasicMaterial({ color: 0x7611b7, transparent: true, opacity: 0.6 })
+    new THREE.MeshBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.6 })
   )
   ring.rotation.x = -Math.PI / 2
   ring.position.y = 0.12
