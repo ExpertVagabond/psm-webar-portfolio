@@ -24,7 +24,8 @@
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%;overflow:hidden}
     body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);touch-action:manipulation;animation:pageEntrance .8s ease-out}
-    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(139,92,246,.08),transparent 70%),radial-gradient(ellipse 50% 40% at 80% 60%,rgba(0,181,173,.06),transparent 70%),radial-gradient(ellipse 40% 50% at 50% 80%,rgba(0,237,175,.05),transparent 70%)}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;background:radial-gradient(ellipse 60% 50% at 20% 20%,rgba(139,92,246,.08),transparent 70%),radial-gradient(ellipse 50% 40% at 80% 60%,rgba(0,181,173,.06),transparent 70%),radial-gradient(ellipse 40% 50% at 50% 80%,rgba(0,237,175,.05),transparent 70%)}
+    #shader-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
     @keyframes pageEntrance{from{opacity:0;filter:blur(6px)}to{opacity:1;filter:blur(0)}}
     #viewer{position:fixed;inset:0}
 
@@ -121,6 +122,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PSM WebAR Portfolio","description":"3D interactive portfolio with face filter mode. Built with Three.js.","applicationCategory":"WebApplication","operatingSystem":"Web Browser","author":{"@type":"Organization","name":"Purple Squirrel Media","url":"https://purplesquirrelmedia.io"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 </head>
 <body>
+  <canvas id="shader-bg"></canvas>
 
   <div class="splash" id="splash">
     <img src="/logo-nav.jpg" alt="PSM" class="splash-logo">
@@ -180,6 +182,179 @@
   <script>
   window.addEventListener('load',()=>setTimeout(()=>document.getElementById('splash').classList.add('done'),800));
   document.querySelectorAll('.psm-footer-link').forEach(l=>{l.addEventListener('mouseenter',()=>{if(l.classList.contains('current'))return;const p=document.createElement('link');p.rel='prefetch';p.href=l.href;if(!document.querySelector('link[href="'+l.href+'"]'))document.head.appendChild(p)},{once:true})});
+  </script>
+
+  <!-- WebGL Aurora Shader Background -->
+  <script>
+  (function() {
+    const canvas = document.getElementById('shader-bg');
+    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+    if (!gl) return;
+
+    const RESOLUTION_SCALE = 0.5;
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const scale = dpr * RESOLUTION_SCALE;
+      canvas.width = Math.floor(window.innerWidth * scale);
+      canvas.height = Math.floor(window.innerHeight * scale);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Compile shader helper
+    function compileShader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error('Shader compile error:', gl.getShaderInfoLog(s));
+        gl.deleteShader(s);
+        return null;
+      }
+      return s;
+    }
+
+    const vertSrc = `
+      attribute vec2 a_position;
+      void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    const fragSrc = `
+      precision mediump float;
+      uniform float u_time;
+      uniform vec2 u_resolution;
+
+      // Attempt a pseudo-noise via layered sines
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+
+      float noise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        f = f * f * (3.0 - 2.0 * f);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0));
+        float d = hash(i + vec2(1.0, 1.0));
+        return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+      }
+
+      float fbm(vec2 p) {
+        float v = 0.0;
+        float a = 0.5;
+        vec2 shift = vec2(100.0);
+        mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+        for (int i = 0; i < 5; i++) {
+          v += a * noise(p);
+          p = rot * p * 2.0 + shift;
+          a *= 0.5;
+        }
+        return v;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution;
+        float t = u_time * 0.15;
+
+        // Vertical gradient: aurora is stronger in the upper portion
+        float vertFade = smoothstep(0.0, 0.6, uv.y) * smoothstep(1.0, 0.55, uv.y);
+
+        // Layered flowing bands
+        vec2 p = uv * vec2(3.0, 2.0);
+
+        // Band 1: primary aurora wave
+        float n1 = fbm(vec2(p.x + t * 0.7, p.y * 0.8 + t * 0.3));
+        float band1 = sin(uv.y * 8.0 + n1 * 4.0 + t * 1.2) * 0.5 + 0.5;
+        band1 = pow(band1, 3.0);
+
+        // Band 2: secondary wave, offset
+        float n2 = fbm(vec2(p.x * 1.3 - t * 0.5, p.y * 1.2 + t * 0.2 + 5.0));
+        float band2 = sin(uv.y * 6.0 + n2 * 5.0 - t * 0.8 + 1.5) * 0.5 + 0.5;
+        band2 = pow(band2, 4.0);
+
+        // Band 3: subtle high-frequency shimmer
+        float n3 = fbm(vec2(p.x * 2.0 + t * 0.4, p.y * 0.5 - t * 0.6 + 10.0));
+        float band3 = sin(uv.y * 12.0 + n3 * 3.0 + t * 2.0) * 0.5 + 0.5;
+        band3 = pow(band3, 5.0);
+
+        // Horizontal drift distortion
+        float drift = fbm(vec2(uv.x * 2.0 + t * 0.3, uv.y * 1.5)) * 0.5;
+
+        // Aurora colors: purple, teal, green
+        vec3 purple = vec3(0.545, 0.361, 0.965);    // #8b5cf6
+        vec3 teal   = vec3(0.0, 0.710, 0.678);      // #00b5ad
+        vec3 green  = vec3(0.0, 0.929, 0.686);       // #00edaf
+
+        // Color mixing based on bands and position
+        vec3 col1 = mix(purple, teal, smoothstep(0.3, 0.7, uv.x + drift * 0.3));
+        vec3 col2 = mix(teal, green, smoothstep(0.2, 0.8, uv.x - drift * 0.2 + 0.1));
+        vec3 col3 = mix(green, purple, smoothstep(0.4, 0.9, uv.y + drift * 0.15));
+
+        vec3 aurora = col1 * band1 * 0.6
+                    + col2 * band2 * 0.45
+                    + col3 * band3 * 0.25;
+
+        // Apply vertical fade and overall intensity
+        aurora *= vertFade;
+
+        // Subtle brightness pulsing
+        float pulse = 0.85 + 0.15 * sin(t * 2.5 + uv.x * 3.0);
+        aurora *= pulse;
+
+        // Final opacity — subtle enough not to overpower UI
+        float alpha = (band1 * 0.5 + band2 * 0.35 + band3 * 0.15) * vertFade * 0.55;
+
+        gl_FragColor = vec4(aurora, alpha);
+      }
+    `;
+
+    const vs = compileShader(gl.VERTEX_SHADER, vertSrc);
+    const fs = compileShader(gl.FRAGMENT_SHADER, fragSrc);
+    if (!vs || !fs) return;
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+      console.error('Program link error:', gl.getProgramInfoLog(prog));
+      return;
+    }
+    gl.useProgram(prog);
+
+    // Fullscreen quad (two triangles)
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1, 1, -1, -1, 1,
+      -1,  1, 1, -1,  1, 1
+    ]), gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(prog, 'a_position');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uRes = gl.getUniformLocation(prog, 'u_resolution');
+
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    function render(now) {
+      gl.uniform1f(uTime, now * 0.001);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+  })();
   </script>
 </body>
 </html>
