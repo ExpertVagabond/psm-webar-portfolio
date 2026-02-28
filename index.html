@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PSM WebAR Portfolio — Purple Squirrel Media</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#08080f;--surface:#111119;--purple:#7611b7;--cyan:#00b5ad;--green:#00edaf;--text:#eae6f2;--text-dim:#7b7390}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text)}
+    #viewer{position:fixed;inset:0}
+
+    .hud{position:fixed;top:0;left:0;right:0;z-index:10;padding:0.75rem 1rem;background:linear-gradient(180deg,rgba(8,8,15,0.9),transparent);display:flex;justify-content:space-between;align-items:center}
+    .hud h1{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--purple),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hud-links{display:flex;gap:0.5rem}
+    .hud-link{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--cyan);text-decoration:none;padding:0.3rem 0.6rem;border:1px solid rgba(0,181,173,0.3);border-radius:6px;transition:all 0.2s}
+    .hud-link:hover{background:rgba(0,181,173,0.1);border-color:var(--cyan)}
+
+    .psm-logo{text-align:center;pointer-events:none}
+    .logo-text{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--purple),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block}
+    .logo-sub{font-size:0.55rem;font-family:'JetBrains Mono',monospace;color:var(--text-dim);display:block;margin-top:-2px}
+
+    .item-label{text-align:center;pointer-events:none}
+    .item-name{font-size:0.8rem;font-weight:700;display:block}
+    .item-desc{font-size:0.55rem;color:var(--text-dim);font-family:'JetBrains Mono',monospace;display:block}
+
+    .footer{position:fixed;bottom:0;left:0;right:0;z-index:10;padding:0.75rem 1rem;background:linear-gradient(0deg,rgba(8,8,15,0.9),transparent);text-align:center}
+    .footer p{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text-dim)}
+    .footer a{color:var(--cyan);text-decoration:none}
+
+    .badge{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;text-align:center}
+    .badge p{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--text-dim)}
+  </style>
+</head>
+<body>
+  <div id="viewer"></div>
+
+  <div class="hud">
+    <h1>Purple Squirrel Media</h1>
+    <div class="hud-links">
+      <a href="https://purplesquirrelmedia.io" class="hud-link" target="_blank">Web</a>
+      <a href="https://github.com/ExpertVagabond" class="hud-link" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <div class="badge">
+    <p>drag to orbit • auto-rotates • 5 project nodes</p>
+  </div>
+
+  <div class="footer">
+    <p>Built with Three.js + webar-core • <a href="https://8thwall-archive.pages.dev">8th Wall Archive</a></p>
+  </div>
+
+  <script type="module" src="/src/app.js"></script>
+</body>
+</html>

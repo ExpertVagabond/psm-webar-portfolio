@@ -1,0 +1,9 @@
+{
+  "name": "psm-webar-portfolio",
+  "version": "0.1.0",
+  "description": "PSM WebAR portfolio — scan business card to launch AR experience",
+  "private": true,
+  "scripts": { "dev": "vite", "build": "vite build" },
+  "devDependencies": { "vite": "^5.0.0" },
+  "dependencies": { "three": "^0.162.0" }
+}
