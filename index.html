@@ -32,6 +32,23 @@
 
     .badge{position:fixed;bottom:50px;left:50%;transform:translateX(-50%);z-index:10;pointer-events:none;text-align:center}
     .badge p{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--text-dim)}
+
+    /* ── AI Project Info Panel ── */
+    .project-info-panel{
+      position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:20;
+      background:rgba(17,17,25,0.95);border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;padding:1.25rem;max-width:380px;width:calc(100% - 2rem);
+      backdrop-filter:blur(20px);opacity:0;transition:all 0.3s ease;pointer-events:auto;
+    }
+    .project-info-panel.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .project-info-panel h3{font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+    .info-detail{font-size:0.8rem;color:var(--text-dim);line-height:1.6;margin-bottom:0.75rem}
+    .info-tech{display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.75rem}
+    .info-tech span{font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--cyan);background:rgba(0,181,173,0.1);padding:0.2rem 0.5rem;border-radius:4px}
+    .info-link{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--green);text-decoration:none;padding:0.4rem 0.8rem;border:1px solid var(--green);border-radius:8px;transition:all 0.2s}
+    .info-link:hover{background:rgba(0,237,175,0.1)}
+    .info-close{position:absolute;top:0.5rem;right:0.75rem;font-size:1.2rem;color:var(--text-dim);cursor:pointer;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all 0.2s}
+    .info-close:hover{background:rgba(255,255,255,0.1);color:var(--text)}
   </style>
 </head>
 <body>
@@ -46,7 +63,7 @@
   </div>
 
   <div class="badge">
-    <p>click a node to visit &bull; drag to orbit &bull; auto-rotates</p>
+    <p>click a node for details &bull; drag to orbit &bull; auto-rotates</p>
   </div>
 
   <div class="footer">

@@ -12,12 +12,63 @@ let hoveredMesh = null
 const projectMeshes = []
 
 const portfolioItems = [
-  { name: 'WebAR Archive', description: '17 8th Wall projects', color: 0x7611b7, url: 'https://8thwall-archive.pages.dev', pos: [-2.5, 0.8, 0] },
-  { name: 'Coldstar', description: 'Air-gapped Solana wallet', color: 0x00b5ad, url: 'https://coldstar.dev', pos: [0, 0.8, -2.5] },
-  { name: 'NorthCatch', description: 'Fishing app (iOS)', color: 0x00edaf, url: 'https://github.com/ExpertVagabond', pos: [2.5, 0.8, 0] },
-  { name: 'MCP Servers', description: 'cPanel, Ordinals, Solmail', color: 0xffc828, url: 'https://github.com/ExpertVagabond/cpanel-mcp', pos: [0, 0.8, 2.5] },
-  { name: 'AI / ML', description: 'Ollama, TTS, R1 models', color: 0xff4466, url: 'https://github.com/ExpertVagabond', pos: [0, 2.5, 0] },
+  {
+    name: 'WebAR Archive', description: '17 8th Wall XR projects',
+    aiDetail: 'A curated archive of 17 WebAR experiences built with 8th Wall. Includes face tracking, image targets, portals, GPS scavenger hunts, and more. Extracted portable code now powers 6 standalone products.',
+    color: 0x7611b7, url: 'https://8thwall-archive.pages.dev', pos: [-2.5, 0.8, 0],
+    tech: ['A-Frame', 'Three.js', 'MediaPipe', 'WebXR'],
+  },
+  {
+    name: 'Coldstar', description: 'Air-gapped Solana wallet',
+    aiDetail: 'Open-source air-gapped cold wallet for Solana. Features FairScore auditing, Jupiter DEX integration, Pyth price feeds, and USB-based transaction signing. Colosseum hackathon finalist.',
+    color: 0x00b5ad, url: 'https://coldstar.dev', pos: [0, 0.8, -2.5],
+    tech: ['Python', 'Rust', 'Solana', 'USB Signer'],
+  },
+  {
+    name: 'NorthCatch', description: 'Fishing app (iOS)',
+    aiDetail: 'Feature-rich fishing companion app built with Expo/React Native. GPS tracking, weather integration, catch logging with photos, and social sharing. Available on iOS via TestFlight.',
+    color: 0x00edaf, url: 'https://github.com/ExpertVagabond', pos: [2.5, 0.8, 0],
+    tech: ['React Native', 'Expo', 'EAS', 'TypeScript'],
+  },
+  {
+    name: 'MCP Servers', description: 'cPanel, Ordinals, Solmail',
+    aiDetail: 'Suite of Model Context Protocol servers. cpanel-mcp (47 tools, npm published), ordinals-mcp (Bitcoin Ordinals), solmail-mcp (Solana messaging). All integrate with Claude Code.',
+    color: 0xffc828, url: 'https://github.com/ExpertVagabond/cpanel-mcp', pos: [0, 0.8, 2.5],
+    tech: ['Node.js', 'MCP', 'npm', 'TypeScript'],
+  },
+  {
+    name: 'AI / ML', description: 'Local AI tools + models',
+    aiDetail: 'Local AI infrastructure: Ollama with custom models, Qwen3-TTS voice cloning on Apple Silicon, Purple Squirrel R1 fine-tuned reasoning model, and AI Content Engine (ACE).',
+    color: 0xff4466, url: 'https://github.com/ExpertVagabond', pos: [0, 2.5, 0],
+    tech: ['Ollama', 'MLX', 'Python', 'Rust SDK'],
+  },
+  {
+    name: 'Ruby Toolkit', description: '16 CLI tools for DevOps',
+    aiDetail: '16-repo suite of Ruby CLI tools covering deployment, databases, monitoring, publishing, and integration. All symlinked to /opt/homebrew/bin/ for instant access.',
+    color: 0x9b30ff, url: 'https://github.com/ExpertVagabond', pos: [-1.8, 1.8, -1.8],
+    tech: ['Ruby 4.0', 'Rails 8.1', 'Kamal', 'CLI'],
+  },
 ]
+
+// AI-generated project detail overlay
+let activeInfoPanel = null
+
+function showProjectInfo(item) {
+  if (activeInfoPanel) activeInfoPanel.remove()
+
+  const panel = document.createElement('div')
+  panel.className = 'project-info-panel'
+  panel.innerHTML = `
+    <div class="info-close" onclick="this.parentElement.remove()">&times;</div>
+    <h3 style="color:#${item.color.toString(16).padStart(6,'0')}">${item.name}</h3>
+    <p class="info-detail">${item.aiDetail}</p>
+    <div class="info-tech">${item.tech.map((t) => `<span>${t}</span>`).join('')}</div>
+    <a href="${item.url}" target="_blank" class="info-link">Visit Project &rarr;</a>
+  `
+  document.body.appendChild(panel)
+  requestAnimationFrame(() => panel.classList.add('show'))
+  activeInfoPanel = panel
+}
 
 function init() {
   const container = document.getElementById('viewer')
@@ -207,7 +258,10 @@ function onPointerMove(event) {
 
 function onClick() {
   if (hoveredMesh && hoveredMesh.userData.url) {
-    window.open(hoveredMesh.userData.url, '_blank')
+    const item = portfolioItems[hoveredMesh.userData.index]
+    if (item) {
+      showProjectInfo(item)
+    }
   }
 }
 
