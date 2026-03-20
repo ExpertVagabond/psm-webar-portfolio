@@ -12,6 +12,19 @@ let renderer, scene, camera, controls, labelRenderer, clock, raycaster, mouse
 let hoveredMesh = null
 const projectMeshes = []
 
+function escapeHtml(str) {
+  if (typeof str !== 'string') return String(str ?? '')
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function sanitizeUrl(url) {
+  if (typeof url !== 'string') return '#'
+  const trimmed = url.trim()
+  if (/^https?:\/\//i.test(trimmed)) return trimmed
+  if (trimmed.startsWith('/')) return trimmed
+  return '#'
+}
+
 const portfolioItems = [
   {
     name: 'WebAR Archive', description: '17 8th Wall XR projects',
@@ -59,12 +72,13 @@ function showProjectInfo(item) {
 
   const panel = document.createElement('div')
   panel.className = 'project-info-panel'
+  const safeColor = '#' + (typeof item.color === 'number' ? item.color.toString(16).padStart(6, '0') : '888888')
   panel.innerHTML = `
     <div class="info-close" onclick="this.parentElement.remove()">&times;</div>
-    <h3 style="color:#${item.color.toString(16).padStart(6,'0')}">${item.name}</h3>
-    <p class="info-detail">${item.aiDetail}</p>
-    <div class="info-tech">${item.tech.map((t) => `<span>${t}</span>`).join('')}</div>
-    <a href="${item.url}" target="_blank" class="info-link">Visit Project &rarr;</a>
+    <h3 style="color:${safeColor}">${escapeHtml(item.name)}</h3>
+    <p class="info-detail">${escapeHtml(item.aiDetail)}</p>
+    <div class="info-tech">${(item.tech || []).map((t) => `<span>${escapeHtml(t)}</span>`).join('')}</div>
+    <a href="${sanitizeUrl(item.url)}" target="_blank" rel="noopener" class="info-link">Visit Project &rarr;</a>
   `
   document.body.appendChild(panel)
   requestAnimationFrame(() => panel.classList.add('show'))
