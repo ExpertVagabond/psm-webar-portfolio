@@ -1,5 +1,6 @@
 {
   "name": "psm-webar-portfolio",
+  "author": "Matthew Karsten <matthewkarstenconnects@gmail.com>",
   "version": "0.1.0",
   "description": "PSM WebAR portfolio — scan business card to launch AR experience",
   "private": true,
